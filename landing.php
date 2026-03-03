@@ -1,213 +1,168 @@
 <?php
-
-require 'insert.php';
-
-require 'update.php';
-
-require 'delete.php';
-
-require 'select.php';
-
-?>
-<?php
 require 'insert.php';
 require 'update.php';
 require 'delete.php';
 require 'select.php';
 
-// 👇 ADD THIS NEW CODE HERE
+// Fetch the integrated list (as seen in your image)
 $stmtOrders = $pdo->query("
-    SELECT o.orders_id, o.user_id, o.product, o.amount, u.name 
+    SELECT o.orders_id, o.user_id, o.product, o.amount, u.name, u.email 
     FROM orders o 
     JOIN users u ON o.user_id = u.user_id
+    ORDER BY o.orders_id DESC
 ");
 $orders = $stmtOrders->fetchAll(PDO::FETCH_ASSOC);
-?>
 
-<h2>Simple PDO CRUD</h2>
-...
-
-
-<h2>Simple PDO CRUD</h2>
-
-
-
-<?php
-
-// CHECK IF EDIT MODE
-
+// Check if Edit Mode
 $editUser = null;
-
-
-
 if (isset($_GET['edit'])) {
-
-  $user_id = $_GET['edit'];
-
-  $stmt = $pdo->prepare("SELECT * FROM users WHERE users_id = ?");
-
-  $stmt->execute([$user_id]);
-
-  $editUser = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    $user_id = $_GET['edit'];
+    // Assuming you edit by user_id to update basic info
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    $editUser = $stmt->fetch(PDO::FETCH_ASSOC);
 }
-
 ?>
 
-
-
-<!-- ADD / UPDATE FORM -->
-
-<h3><?= $editUser ? 'Update User' : 'Add User' ?></h3>
-
-
-
-<form method="POST">
-
-  
-
-  <?php if (!empty($editUser)): ?>
-
-    <input type="hidden" name="users_id" value="<?= $editUser['users_id'] ?>">
-
-  <?php endif; ?>
-
-
-
-  
-
-  <label>Name:</label>
-
-  <input type="text" name="name" value="<?= !empty($editUser) ? $editUser['name'] : '' ?>" required><br>
-
-
-
-  
-
-  <label>Email:</label>
-
-  <input type="email" name="email" value="<?= !empty($editUser) ? $editUser['email'] : '' ?>" required><br>
-
-
-
-  
-
-  <label>Product:</label>
-
-  <input type="text" name="product" placeholder="Product" required><br>
-
-
-
-  
-
-  <label>Amount:</label>
-
-  <input type="number" step="0.01" name="amount" placeholder="Amount" required><br>
-
-
-
-  <!-- Submit buttons -->
-
-  <?php if (!empty($editUser)): ?>
-
-    <button type="submit" name="update">Update</button>
-
-    <a href="landing.php">Cancel</a>
-
-  <?php else: ?>
-
-    <button type="submit" name="add">Add</button>
-
-  <?php endif; ?>
-
-</form>
-
-
-
-<hr>
-
-
-
-<!-- USER TABLE -->
-
-<h3>User List</h3>
-
-
-
-<table border="1" cellpadding="10">
-
-  <tr>
-
-    <th>users_id</th>
-
-    <th>Name</th>
-
-    <th>Email</th>
-
-    <th>Action</th>
-
-  </tr>
-
-
-
-  <?php foreach ($users as $user): ?>
-
-  <tr>
-
-    <td><?= $user['user_id'] ?></td>
-
-    <td><?= $user['name'] ?></td>
-
-    <td><?= $user['email'] ?></td>
-
-    <td>
-
-      <a href="?edit=<?= $user['user_id'] ?>">Edit</a> |
-
-      <a href="?delete=<?= $user['user_id'] ?>">Delete</a>
-
-    </td>
-
-  </tr>
-
-  <?php endforeach; ?>
-
-</table>
-
-
-<h3>Order products</h3>
-<table border="1" cellpadding="10">
-
-  <tr>
-    <th>orders_id</th>
-
-    <th>users_id</th>
-
-    <th>Name</th>
-
-    <th>product</th>
-
-    
-
-    <th>amount</th>
-
-    <th>Action</th>
-
-  </tr>
-
-
-
-  <?php foreach ($orders as $order): ?>
-<tr>
-    <td><?= $order['orders_id'] ?></td>
-    <td><?= $order['user_id'] ?></td>
-    <td><?= $order['name'] ?></td>
-    <td><?= $order['product'] ?></td>
-    <td><?= $order['amount'] ?></td>
-    <td>
-        <!-- Actions for orders (optional) -->
-    </td>
-</tr>
-<?php endforeach; ?>
-
-</table>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple PDO CRUD</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { border: none; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .btn-add { background-color: #008952; color: white; }
+        .btn-add:hover { background-color: #006b40; color: white; }
+        .table thead th { border-bottom: 2px solid #dee2e6; color: #6c757d; font-weight: 500; }
+        .id-badge { background-color: #343a40; color: white; width: 30px; height: 24px; display: inline-flex; 
+                    align-items: center; justify-content: center; border-radius: 6px; font-size: 0.8rem; font-weight: bold; }
+        .form-label { font-weight: 600; color: #495057; }
+        .table-container { min-height: 500px; }
+    </style>
+</head>
+<body>
+
+<div class="container py-4">
+    <!-- Success Alert (Simulated from the image text) -->
+    <?php if (isset($_GET['status']) && $_GET['status'] == 'success'): ?>
+        <div class="alert alert-light border-0 shadow-sm mb-4 py-2 px-3 d-inline-block" role="alert">
+            <span class="text-secondary small">User and Order added successfully!</span>
+        </div>
+    <?php endif; ?>
+
+    <div class="row g-4">
+        <!-- LEFT: Add / Update User Form -->
+        <div class="col-lg-4">
+            <div class="card p-4">
+                <h5 class="card-title mb-4">
+                    <i class="bi bi-person-plus text-success me-2"></i>
+                    <?= $editUser ? 'Update User' : 'Add New User' ?>
+                </h5>
+
+                <form method="POST">
+                    <?php if ($editUser): ?>
+                        <input type="hidden" name="user_id" value="<?= $editUser['user_id'] ?>">
+                    <?php endif; ?>
+
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="John Doe" 
+                               value="<?= $editUser ? htmlspecialchars($editUser['name']) : '' ?>" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" placeholder="john@example.com" 
+                               value="<?= $editUser ? htmlspecialchars($editUser['email']) : '' ?>" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Product</label>
+                        <input type="text" name="product" class="form-control" placeholder="e.g. Premium Plan" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-secondary small">PHP</span>
+                            <input type="number" step="0.01" name="amount" class="form-control border-start-0 ps-0" placeholder="0.00" required>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <?php if ($editUser): ?>
+                            <button type="submit" name="update" class="btn btn-add rounded-pill py-2">
+                                <i class="bi bi-pencil-square me-1"></i> Update User
+                            </button>
+                            <a href="landing.php" class="btn btn-light rounded-pill py-2 border">Cancel</a>
+                        <?php else: ?>
+                            <button type="submit" name="add" class="btn btn-add rounded-pill py-2">
+                                <i class="bi bi-plus-circle me-1"></i> Add User
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- RIGHT: User & Order List Table -->
+        <div class="col-lg-8">
+            <div class="card p-4 table-container">
+                <h5 class="card-title mb-4">
+                    <i class="bi bi-people-fill text-dark me-2"></i>
+                    User & Order List
+                </h5>
+
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Product</th>
+                                <th>Amount</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($orders as $order): ?>
+                            <tr class="border-bottom">
+                                <td><span class="id-badge">#<?= $order['orders_id'] ?></span></td>
+                                <td class="text-secondary"><?= htmlspecialchars($order['name']) ?></td>
+                                <td><a href="mailto:<?= $order['email'] ?>" class="text-primary text-decoration-none small"><?= htmlspecialchars($order['email']) ?></a></td>
+                                <td class="text-secondary"><?= htmlspecialchars($order['product']) ?></td>
+                                <td class="text-secondary">PHP <?= number_format($order['amount'], 2) ?></td>
+                                <td>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="?edit=<?= $order['user_id'] ?>" class="btn btn-outline-primary btn-sm px-3 border-2 d-flex align-items-center">
+                                            <i class="bi bi-pencil me-1 small"></i> Edit
+                                        </a>
+                                        <a href="?delete=<?= $order['user_id'] ?>" onclick="return confirm('Delete this record?')" class="btn btn-outline-danger btn-sm px-3 border-2 d-flex align-items-center">
+                                            <i class="bi bi-trash3 me-1 small"></i> Delete
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+
+                            <?php if (empty($orders)): ?>
+                                <tr><td colspan="6" class="text-center text-muted py-4">No records found.</td></tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
