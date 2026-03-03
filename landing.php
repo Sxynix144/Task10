@@ -5,12 +5,6 @@ require 'delete.php';
 require 'select.php';
 
 
-$stmtOrders = $pdo->query("
-    SELECT o.orders_id, o.user_id, o.product, o.amount, u.name, u.email 
-    FROM orders o 
-    JOIN users u ON o.user_id = u.user_id
-    ORDER BY o.orders_id DESC
-");
 $orders = $stmtOrders->fetchAll(PDO::FETCH_ASSOC);
 
 
@@ -165,4 +159,5 @@ if (isset($_GET['edit'])) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
 
