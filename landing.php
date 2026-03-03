@@ -4,7 +4,7 @@ require 'update.php';
 require 'delete.php';
 require 'select.php';
 
-// Fetch the integrated list (as seen in your image)
+
 $stmtOrders = $pdo->query("
     SELECT o.orders_id, o.user_id, o.product, o.amount, u.name, u.email 
     FROM orders o 
@@ -13,11 +13,11 @@ $stmtOrders = $pdo->query("
 ");
 $orders = $stmtOrders->fetchAll(PDO::FETCH_ASSOC);
 
-// Check if Edit Mode
+
 $editUser = null;
 if (isset($_GET['edit'])) {
     $user_id = $_GET['edit'];
-    // Assuming you edit by user_id to update basic info
+ 
     $stmt = $pdo->prepare("SELECT * FROM users WHERE user_id = ?");
     $stmt->execute([$user_id]);
     $editUser = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -30,9 +30,9 @@ if (isset($_GET['edit'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple PDO CRUD</title>
-    <!-- Bootstrap 5 CSS -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
+   
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
         body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -49,7 +49,7 @@ if (isset($_GET['edit'])) {
 <body>
 
 <div class="container py-4">
-    <!-- Success Alert (Simulated from the image text) -->
+
     <?php if (isset($_GET['status']) && $_GET['status'] == 'success'): ?>
         <div class="alert alert-light border-0 shadow-sm mb-4 py-2 px-3 d-inline-block" role="alert">
             <span class="text-secondary small">User and Order added successfully!</span>
@@ -57,7 +57,7 @@ if (isset($_GET['edit'])) {
     <?php endif; ?>
 
     <div class="row g-4">
-        <!-- LEFT: Add / Update User Form -->
+     
         <div class="col-lg-4">
             <div class="card p-4">
                 <h5 class="card-title mb-4">
@@ -111,7 +111,6 @@ if (isset($_GET['edit'])) {
             </div>
         </div>
 
-        <!-- RIGHT: User & Order List Table -->
         <div class="col-lg-8">
             <div class="card p-4 table-container">
                 <h5 class="card-title mb-4">
@@ -166,3 +165,4 @@ if (isset($_GET['edit'])) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
